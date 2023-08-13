@@ -23,34 +23,37 @@ class ChatMessage {
 
 class ChatPageViewModel extends ViewModel {
 // Properties
-  String _serverUrl;
-  HubConnection _hubConnection;
-  Logger _logger;
-  StreamSubscription<LogRecord> _logMessagesSub;
+  final String _serverUrl;
+  HubConnection? _hubConnection;
+  Logger? _logger;
+  StreamSubscription<LogRecord>? _logMessagesSub;
 
-  List<ChatMessage> _chatMessages;
+  List<ChatMessage> _chatMessages = [];
   static const String chatMessagesPropName = "chatMessages";
+
   List<ChatMessage> get chatMessages => _chatMessages;
 
-  bool _connectionIsOpen;
+  bool? _connectionIsOpen;
   static const String connectionIsOpenPropName = "connectionIsOpen";
-  bool get connectionIsOpen => _connectionIsOpen;
-  set connectionIsOpen(bool value) {
-    updateValue(connectionIsOpenPropName, _connectionIsOpen, value,
-        (v) => _connectionIsOpen = v);
+
+  bool? get connectionIsOpen => _connectionIsOpen;
+
+  set connectionIsOpen(bool? value) {
+    updateValue(connectionIsOpenPropName, _connectionIsOpen, value, (bool? v) => _connectionIsOpen = v);
   }
 
-  String _userName;
+  String? _userName;
   static const String userNamePropName = "userName";
-  String get userName => _userName;
-  set userName(String value) {
-    updateValue(userNamePropName, _userName, value, (v) => _userName = v);
+
+  String? get userName => _userName;
+
+  set userName(String? value) {
+    updateValue(userNamePropName, _userName, value, (String? v) => _userName = v);
   }
 
 // Methods
 
-  ChatPageViewModel() {
-    _serverUrl = kChatServerUrl + "/Chat";
+  ChatPageViewModel(this._serverUrl) {
     _chatMessages = [];
     _connectionIsOpen = false;
     _userName = "Fred";
@@ -80,31 +83,25 @@ class ChatPageViewModel extends ViewModel {
     final logger = _logger;
 
     if (_hubConnection == null) {
-      final httpConnectionOptions = new HttpConnectionOptions(
-          httpClient: WebSupportingHttpClient(logger,
-              httpClientCreateCallback: _httpClientCreateCallback),
-          logger: logger,
-          logMessageContent: true);
+      final httpConnectionOptions =
+          new HttpConnectionOptions(httpClient: WebSupportingHttpClient(logger, httpClientCreateCallback: _httpClientCreateCallback), logger: logger, logMessageContent: true);
 
-      _hubConnection = HubConnectionBuilder()
-          .withUrl(_serverUrl, options: httpConnectionOptions)
-          .withAutomaticReconnect(retryDelays: [2000, 5000, 10000, 20000, null])
-          .configureLogging(logger)
-          .build();
-      _hubConnection.onclose(({error}) => connectionIsOpen = false);
-      _hubConnection.onreconnecting(({error}) {
+      _hubConnection =
+          HubConnectionBuilder().withUrl(_serverUrl, options: httpConnectionOptions).withAutomaticReconnect(retryDelays: [2000, 5000, 10000, 20000, null]).configureLogging(logger!).build();
+      _hubConnection?.onclose(({error}) => connectionIsOpen = false);
+      _hubConnection?.onreconnecting(({error}) {
         print("onreconnecting called");
         connectionIsOpen = false;
       });
-      _hubConnection.onreconnected(({connectionId}) {
+      _hubConnection?.onreconnected(({connectionId}) {
         print("onreconnected called");
         connectionIsOpen = true;
       });
-      _hubConnection.on("OnMessage", _handleIncommingChatMessage);
+      _hubConnection?.on("OnMessage", _handleIncommingChatMessage);
     }
 
-    if (_hubConnection.state != HubConnectionState.Connected) {
-      await _hubConnection.start();
+    if (_hubConnection?.state != HubConnectionState.Connected) {
+      await _hubConnection?.start();
       connectionIsOpen = true;
     }
   }
@@ -114,12 +111,15 @@ class ChatPageViewModel extends ViewModel {
       return;
     }
     await openChatConnection();
-    _hubConnection.invoke("Send", args: <Object>[userName, chatMessage]);
+    _hubConnection?.invoke("Send", args: <Object>[userName as dynamic, chatMessage]);
   }
 
-  void _handleIncommingChatMessage(List<Object> args) {
-    final String senderName = args[0];
-    final String message = args[1];
+  void _handleIncommingChatMessage(List<Object?>? args) {
+    final String? senderName = args?[0] as String?;
+    final String? message = args?[1] as String?;
+
+    if(senderName == null || message == null) return;
+
     _chatMessages.add(ChatMessage(senderName, message));
     notifyPropertyChanged(chatMessagesPropName);
   }
@@ -129,22 +129,16 @@ class ChatPageViewModelProvider extends ViewModelProvider<ChatPageViewModel> {
   // Properties
 
   // Methods
-  ChatPageViewModelProvider(
-      {Key key, viewModel = ChatPageViewModel, WidgetBuilder childBuilder})
-      : super(key: key, viewModel: viewModel, childBuilder: childBuilder);
+  ChatPageViewModelProvider({Key? key, viewModel = ChatPageViewModel, required WidgetBuilder childBuilder}) : super(key: key, viewModel: viewModel, childBuilder: childBuilder);
 
   static ChatPageViewModel of(BuildContext context) {
-    return (context
-            .dependOnInheritedWidgetOfExactType<ChatPageViewModelProvider>())
-        .viewModel;
+    return (context.dependOnInheritedWidgetOfExactType<ChatPageViewModelProvider>())!.viewModel;
   }
 }
 
 class HttpOverrideCertificateVerificationInDev extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }

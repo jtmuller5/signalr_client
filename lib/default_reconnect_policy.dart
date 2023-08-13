@@ -11,7 +11,7 @@ class DefaultRetryPolicy implements IRetryPolicy {
     null
   ];
 
-  DefaultRetryPolicy({List<int>? retryDelays}) {
+  DefaultRetryPolicy({List<int?>? retryDelays}) {
     _retryDelays = retryDelays != null
         ? [...retryDelays, null]
         : DEFAULT_RETRY_DELAYS_IN_MILLISECONDS;

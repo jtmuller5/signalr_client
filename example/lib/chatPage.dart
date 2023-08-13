@@ -8,11 +8,11 @@ class ChatPage extends StatelessWidget {
 
 // Methods
 
-  ChatPage({Key key}) : super(key: key);
+  ChatPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final vm = new ChatPageViewModel();
+    final vm = new ChatPageViewModel(kChatServerUrl + "/Chat");
     return ChatPageViewModelProvider(
         viewModel: vm,
         childBuilder: (ctx) {
@@ -58,7 +58,7 @@ class MessageChatView extends StatelessWidget {
                 propertyName: ChatPageViewModel.connectionIsOpenPropName,
                 builder: (context, snapshot) {
                   return Text(
-                      vm.connectionIsOpen ? "Connected" : "Disconnected");
+                      (vm.connectionIsOpen ?? false) ? "Connected" : "Disconnected");
                 }),
           ],
         ),

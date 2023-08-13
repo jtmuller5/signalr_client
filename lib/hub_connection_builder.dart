@@ -71,7 +71,7 @@ class HubConnectionBuilder {
   }
 
   HubConnectionBuilder withAutomaticReconnect(
-      {IRetryPolicy? reconnectPolicy, List<int>? retryDelays}) {
+      {IRetryPolicy? reconnectPolicy, List<int?>? retryDelays}) {
     assert(_reconnectPolicy == null);
 
     if (reconnectPolicy == null && retryDelays == null) {

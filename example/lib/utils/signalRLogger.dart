@@ -7,7 +7,7 @@ typedef LogMessageDelegate = void Function(LogMessage);
 class DelegatingLogSink {
   // Properties
   final LogMessageDelegate _logFunc;
-  StreamSubscription<LogRecord> _subscription;
+  StreamSubscription<LogRecord>? _subscription;
 
   // Methods
 

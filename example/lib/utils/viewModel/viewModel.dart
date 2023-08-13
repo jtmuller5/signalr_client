@@ -47,7 +47,7 @@ abstract class ViewModel {
     propertyChanges.add(PropertyChangedEvent(this, propertyName));
   }
 
-  Observable<PropertyChangedEvent> whenPropertiesChanged(
+  Stream<PropertyChangedEvent> whenPropertiesChanged(
       List<String> propertyNames) {
     assert(propertyNames != null || propertyNames.length != 0);
 
@@ -61,7 +61,7 @@ abstract class ViewModel {
     }));
   }
 
-  Observable<void> whenPropertiesChangedHint(List<String> propertyNames) {
+  Stream<void> whenPropertiesChangedHint(List<String> propertyNames) {
     assert(propertyNames != null || propertyNames.length != 0);
 
     return propertyChanges
@@ -74,7 +74,7 @@ abstract class ViewModel {
     }));
   }
 
-  Observable<PropertyChangedEvent> whenPropertyChanged(String propertyName) {
+  Stream<PropertyChangedEvent> whenPropertyChanged(String propertyName) {
     return propertyChanges
         .where((event) =>
             isBlank(event.propertyName) || event.propertyName == propertyName)
@@ -84,7 +84,7 @@ abstract class ViewModel {
     }));
   }
 
-  Observable whenPropertyChangedHint(String propertyName) {
+  Stream whenPropertyChangedHint(String propertyName) {
     return propertyChanges
         .where((event) =>
             isBlank(event.propertyName) || event.propertyName == propertyName)
